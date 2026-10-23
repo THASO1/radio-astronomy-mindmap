@@ -398,8 +398,10 @@ function App() {
       .filter(n => !childParent[n.id] && n.id !== groupId && visibleIds.has(n.id))
       .map(n => ({ x: n.position.x, y: n.position.y, ...dims(n) }));
     occupied.push(parentRect);
+    const uiRects = [];
     if (view) {
-      occupied.push({ x: view.x + 4, y: view.y + view.h - 140, w: 44, h: 130 }); // zoom controls
+      uiRects.push({ x: view.x + 4, y: view.y + view.h - 140, w: 44, h: 130 }); // zoom controls
+      occupied.push(...uiRects);
     }
 
     const kids = (childrenData[groupId] || [])
@@ -416,9 +418,17 @@ function App() {
           .map(c => nodes.find(n => n.id === c.id))
           .filter(Boolean)
           .map(n => ({ id: n.id, w: CHILD_W, h: CHILD_H }));
+        // Deeper cards may cover dimmed main nodes (they are hidden when covered),
+        // but must never cover the focused parent or the direct children.
+        const parentGuard = { x: parentRect.x - 24, y: parentRect.y - 24, w: parentRect.w + 48, h: parentRect.h + 48 };
+        const subOccupied = [
+          parentGuard,
+          ...placements.map(p => ({ x: p.x, y: p.y, w: CHILD_W, h: CHILD_H })),
+          ...uiRects
+        ];
         const subs = placeCluster(
           { x: placedChild.x, y: placedChild.y, w: CHILD_W, h: CHILD_H },
-          subNodes, occupied, view
+          subNodes, subOccupied, view
         );
         placements.push(...subs);
       }
