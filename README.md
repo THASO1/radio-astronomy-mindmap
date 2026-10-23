@@ -2,7 +2,7 @@
 
 **Explore radio astronomy through an interactive mind map, guided study mode, and knowledge quizzes.**
 
-[🚀 Live Demo](https://radio-astronomy-mindmap.vercel.app/) · [📦 GitHub Repository](https://github.com/THASO1/radio-astronomy-mindmap)
+[🚀 Live Demo](https://radio-astronomy-mindmap.vercel.app/)
 
 ---
 
