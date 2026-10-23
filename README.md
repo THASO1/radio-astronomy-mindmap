@@ -3,11 +3,11 @@
 An interactive, lecture-based mind map for Radio Astronomy Lecture 2 by Dr. Reham El-Kholy.
 
 ## Features
-- Interactive node graph with drag, zoom, pan, minimap and focus mode.
-- Topic detail panel with key ideas and lecture slide references.
-- Search across topics and concepts.
-- Study mode with short explanations and check-your-understanding answers.
-- Quiz mode with immediate feedback and score.
+- Interactive node graph with drag, zoom, pan and hover focus mode.
+- Hover-expandable concept groups; deeper levels are opt-in via the details panel.
+- Topic detail panel with definitions, explanations, equations, key ideas, related concepts and lecture slide references.
+- Study mode with one concept at a time, hidden explanations/answers and saved progress.
+- Quiz mode with immediate feedback, slide references, score, review and a saved best score.
 - Responsive layout for desktop and mobile.
 
 ## Run locally
