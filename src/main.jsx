@@ -137,11 +137,17 @@ const conceptById = {};
     category: c.category || 'Concept',
     summary: c.summary || c.desc || '',
     key: Array.isArray(c.key) ? c.key : [],
-    question: c.question || '',
-    answer: c.answer || '',
     page: extra.page || c.page || '',
     definition: extra.definition || '',
     explanation: extra.explanation || '',
+    reasoning: extra.reasoning || '',
+    significance: extra.significance || '',
+    keyValues: Array.isArray(extra.keyValues) ? extra.keyValues : [],
+    sources: Array.isArray(extra.sources) ? extra.sources : [],
+    sourceNote: extra.sourceNote || '',
+    takeaway: extra.takeaway || '',
+    question: extra.studyQuestion || c.question || '',
+    answer: extra.studyAnswer || c.answer || '',
     equations: Array.isArray(extra.equations) ? extra.equations : [],
     extraRelated: Array.isArray(extra.related) ? extra.related : []
   };
@@ -178,6 +184,8 @@ const initialStudyState = (() => {
 
 const initialQuizStats = (() => {
   const saved = readStore(QUIZ_KEY) || {};
+  // Reset saved stats when the quiz length changes (an older, shorter quiz).
+  if (saved.total !== quiz.length) return { best: 0, attempts: 0 };
   const best = Number.isFinite(saved.best) && saved.best >= 0 ? Math.min(saved.best, quiz.length) : 0;
   const attempts = Number.isFinite(saved.attempts) && saved.attempts >= 0 ? Math.floor(saved.attempts) : 0;
   return { best, attempts };
@@ -614,14 +622,14 @@ function App() {
   const nextQuiz = () => {
     if (quizIndex < quiz.length-1) { setQuizIndex(i=>i+1); setChosen(null); setAnswered(false); }
     else {
-      const stats = { best: Math.max(quizStats.best, score), attempts: quizStats.attempts + 1 };
+      const stats = { best: Math.max(quizStats.best, score), attempts: quizStats.attempts + 1, total: quiz.length };
       setQuizStats(stats);
       writeStore(QUIZ_KEY, stats);
       setMode('results');
     }
   };
   const resetSavedQuiz = () => {
-    const stats = { best: 0, attempts: 0 };
+    const stats = { best: 0, attempts: 0, total: quiz.length };
     setQuizStats(stats);
     writeStore(QUIZ_KEY, stats);
   };
@@ -667,9 +675,14 @@ function App() {
             <h2>{active.title || 'Concept'}</h2>
             <p className="detail-definition">{active.definition || active.summary || 'No summary is recorded for this concept yet.'}</p>
             {active.explanation && <p className="detail-explanation">{active.explanation}</p>}
+            {active.keyValues.length > 0 && <div className="detail-section"><h3>Key values</h3><div className="value-list">{active.keyValues.map((v,i)=><span className="value-chip" key={i}>{v}</span>)}</div></div>}
+            {active.reasoning && <div className="detail-section"><h3>Physical reasoning</h3><p className="detail-body">{active.reasoning}</p></div>}
+            {active.significance && <div className="detail-section"><h3>Why it matters</h3><p className="detail-body">{active.significance}</p></div>}
             {active.key.length > 0 && <><div className="detail-divider"></div><h3>Key ideas</h3><ul className="key-list">{active.key.map((k,i)=><li key={i}><span className="key-bullet">{String(i+1).padStart(2,'0')}</span><span>{k}</span></li>)}</ul></>}
             {active.equations.length > 0 && <div className="detail-section"><h3>Equations</h3>{active.equations.map((eq,i)=><div className="equation" key={i}><code>{eq.expr}</code><p className="equation-note">{eq.note}</p></div>)}</div>}
             {relatedConcepts.length > 0 && <div className="detail-section"><h3>Related concepts</h3><div className="related-list">{relatedConcepts.map(rel=><button key={rel.id} className="related-chip" onClick={()=>openConcept(rel.id)} title={`Open ${rel.title}`}><ChevronRight size={12}/>{rel.title}</button>)}</div></div>}
+            {active.sources.length > 0 && <div className="detail-section"><h3>Sources</h3><ul className="source-list">{active.sources.map((s,i)=><li key={i}>{s}</li>)}</ul></div>}
+            {active.sourceNote && <p className="source-note"><b>Source note:</b> {active.sourceNote}</p>}
             {active.question && <div className="quick-check"><div className="quick-check-head"><CircleHelp size={15}/> QUICK CHECK</div><p>{active.question}</p>{revealedAnswers.has(active.id) ? <div className="quick-answer">{active.answer}</div> : <button onClick={()=>revealAnswer(active.id)}>Reveal answer <ChevronRight size={15}/></button>}</div>}
             {childParent[active.id] && <p className="detail-supplement">Sub-concept of <b>{conceptById[childParent[active.id]]?.title || 'this lecture map'}</b>. Explanations come from the lecture slides listed above.</p>}
             {deeperKids.length > 0 && <div className="deep-control"><button className="secondary-button small" onClick={toggleDeeper} aria-expanded={deepOpen}>{deepOpen ? 'Hide deeper concepts' : `Show deeper concepts (${deeperKids.length})`}</button><span className="deep-hint">Optional — deeper concepts are never shown on hover.</span></div>}
@@ -690,15 +703,22 @@ function App() {
           <div className="study-detail-top"><span className="panel-kicker">CONCEPT {studyIndex+1} OF {studyTotal} · SLIDES {studyConcept.page || '—'}</span><span className="count-badge">{(studyConcept.category || 'CONCEPT').toUpperCase()}</span></div>
           <h2>{studyConcept.title}</h2>
           <p className="study-definition">{studyConcept.definition || studyConcept.summary}</p>
+          {studyConcept.keyValues.length > 0 && <div className="value-list study-values">{studyConcept.keyValues.map((v,i)=><span className="value-chip" key={i}>{v}</span>)}</div>}
           {!isMainTopic(studyConcept.id) && <p className="study-parent">Part of <button className="inline-link" onClick={()=>setSelected(childParent[studyConcept.id] || 'root')}>{conceptById[childParent[studyConcept.id]]?.title || 'the parent topic'}</button></p>}
           {studyConcept.explanation && <div className="study-reveal">
             <button className="secondary-button small" onClick={()=>revealExplanation(studyConcept.id)} aria-expanded={revealedExplanations.has(studyConcept.id)}>{revealedExplanations.has(studyConcept.id) ? 'Hide explanation' : 'Show explanation'}</button>
-            {revealedExplanations.has(studyConcept.id) && <p className="study-explanation">{studyConcept.explanation}</p>}
+            {revealedExplanations.has(studyConcept.id) && <div className="study-explanation">
+              <p>{studyConcept.explanation}</p>
+              {studyConcept.reasoning && <><h4>Physical reasoning</h4><p>{studyConcept.reasoning}</p></>}
+              {studyConcept.significance && <><h4>Why it matters</h4><p>{studyConcept.significance}</p></>}
+              {studyConcept.sources.length > 0 && <><h4>Sources</h4><ul className="source-list">{studyConcept.sources.map((s,i)=><li key={i}>{s}</li>)}</ul></>}
+              {studyConcept.sourceNote && <p className="source-note"><b>Source note:</b> {studyConcept.sourceNote}</p>}
+            </div>}
           </div>}
           {studyConcept.key.length > 0 && <><h3>Key ideas</h3><ul className="key-list">{studyConcept.key.map((k,i)=><li key={i}><span className="key-bullet">{String(i+1).padStart(2,'0')}</span><span>{k}</span></li>)}</ul></>}
           {studyConcept.equations.length > 0 && <div className="detail-section"><h3>Equations</h3>{studyConcept.equations.map((eq,i)=><div className="equation" key={i}><code>{eq.expr}</code><p className="equation-note">{eq.note}</p></div>)}</div>}
           {relatedOf(studyConcept.id).length > 0 && <div className="detail-section"><h3>Connections</h3><div className="related-list">{relatedOf(studyConcept.id).map(id=>conceptById[id]).filter(Boolean).map(rel=><button key={rel.id} className="related-chip" onClick={()=>setSelected(rel.id)}><ChevronRight size={12}/>{rel.title}</button>)}</div></div>}
-          {studyConcept.question && <div className="answer-card"><div className="quick-check-head"><CircleHelp size={15}/> CHECK YOUR UNDERSTANDING</div><p>{studyConcept.question}</p>{revealedAnswers.has(studyConcept.id) ? <div className="answer-text">{studyConcept.answer}</div> : <button className="secondary-button small" onClick={()=>revealAnswer(studyConcept.id)}>Reveal answer</button>}</div>}
+          {studyConcept.question && <div className="answer-card"><div className="quick-check-head"><CircleHelp size={15}/> CHECK YOUR UNDERSTANDING</div><p>{studyConcept.question}</p>{revealedAnswers.has(studyConcept.id) ? <><div className="answer-text">{studyConcept.answer}</div>{studyConcept.takeaway && <div className="study-takeaway"><b>Takeaway:</b> {studyConcept.takeaway}</div>}</> : <button className="secondary-button small" onClick={()=>revealAnswer(studyConcept.id)}>Reveal answer</button>}</div>}
           <div className="study-nav">
             <button className="secondary-button" onClick={()=>goStudy(-1)} disabled={studyIndex===0}><ChevronLeft size={16}/> Previous</button>
             <span className="study-nav-count">{studyIndex+1} / {studyTotal}</span>

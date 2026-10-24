@@ -30,6 +30,19 @@ body{background:radial-gradient(ellipse at 12% 5%,#172e62 0,transparent 38%),rad
 .quick-answer{margin-top:4px;font-size:14px;line-height:1.65;color:#b9e6f2;border-left:2px solid #3d8aa3;padding:2px 0 2px 12px}
 .deep-control{margin-top:20px;display:flex;flex-wrap:wrap;align-items:center;gap:10px}
 .deep-hint{font-size:11px;line-height:1.5;color:#6f8ba3;max-width:220px}
+.detail-body{font-size:14.5px;line-height:1.75;color:#b9ccdd;margin:0}
+.value-list{display:flex;flex-wrap:wrap;gap:7px}
+.value-chip{display:inline-flex;align-items:center;border:1px solid #2b5670;background:#0b2233;color:#9bdcec;border-radius:99px;padding:5px 10px;font-size:11.5px;line-height:1.35}
+.study-values{margin:-2px 0 14px}
+.source-list{list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:12.5px;line-height:1.55;color:#8fa9c0}
+.source-list li{padding-left:12px;border-left:2px solid #24445a}
+.source-note{margin:20px 0 0;padding:11px 13px;border:1px solid #5b4629;border-left:3px solid #c98b4a;background:#1e1a12;border-radius:7px;font-size:12.5px;line-height:1.65;color:#d8c4a8}
+.study-explanation p{margin:0 0 10px;line-height:1.75;color:#c2d4e4}
+.study-explanation p:last-child{margin-bottom:0}
+.study-explanation h4{margin:16px 0 7px;font:600 12px 'Space Grotesk';letter-spacing:.3px;color:#dcecf8;text-transform:uppercase}
+.study-explanation .source-note{margin-top:15px}
+.study-detail .answer-text{font-size:14px;line-height:1.75;color:#b9d8e6}
+.study-takeaway{margin-top:13px;padding-top:11px;border-top:1px dashed #2b5670;font-size:13px;line-height:1.65;color:#9ee6f2}
 .study-list{display:flex;flex-direction:column;min-height:0;max-height:calc(100vh - 245px);overflow:hidden}
 .study-list-scroll{overflow-y:auto;min-height:0;flex:1;padding-right:4px;scrollbar-width:thin;scrollbar-color:#315e7b #0a1a2d}
 button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #49d8ef;outline-offset:2px}
